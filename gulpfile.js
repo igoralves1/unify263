@@ -5,12 +5,13 @@
 "use strict";
 
 const gulp           = require('gulp');
-const sass           = require('gulp-sass');
+const sass           = require('gulp-sass')(require('sass'));
 const autoprefixer   = require('gulp-autoprefixer');
 const njkRender      = require('gulp-nunjucks-render');
 const htmlPrettify   = require('gulp-html-prettify');
 const rtlcss         = require('gulp-rtlcss');
 const rename         = require('gulp-rename');
+const browserSync    = require('browser-sync').create();
 
 var locOnePages      = ['accounting', 'agency', 'app', 'architecture', 'business', 'charity', 'construction', 'consulting', 'corporate', 'courses', 'event', 'gym', 'lawyer', 'music', 'photography', 'real-estate', 'restaurant', 'shipping', 'spa', 'travel', 'wedding'];
 
@@ -35,7 +36,7 @@ function errorLog(error) {
 
 function sass_main() {
   return gulp
-    .src('./html/assets/include/scss/**/*.scss')
+    .src('./src/assets/include/scss/**/*.scss')
     .pipe(sass({ outputStyle: 'expanded' }))
     .on('error', sass.logError)
     .pipe(autoprefixer([
@@ -49,17 +50,19 @@ function sass_main() {
       "Safari >= 9",
       "Android >= 4.4",
       "Opera >= 30"], { cascade: true }))
-    .pipe(gulp.dest('./html/assets/css/'));
+    .pipe(gulp.dest('./src/assets/css/'));
 }
 
 function njk_main() {
   return gulp
-    .src('./html/assets/include/nunjucks/pages/**/*.njk')
-    .pipe(njkRender())
+    .src('./src/assets/include/nunjucks/pages/**/*.njk')
+    .pipe(njkRender({
+      path: ['./src']
+    }))
     .pipe(htmlPrettify({
       indent_size: 2
     }))
-    .pipe(gulp.dest('./html/'));
+    .pipe(gulp.dest('./src/'));
 }
 
 
@@ -70,7 +73,7 @@ function njk_main() {
 
 function sass_admin() {
   return gulp
-    .src('./html/admin-template/assets/include/scss/**/*.scss')
+    .src('./src/admin-template/assets/include/scss/**/*.scss')
     .pipe(sass({ outputStyle: 'expanded' }))
     .on('error', sass.logError)
     .pipe(autoprefixer([
@@ -84,17 +87,19 @@ function sass_admin() {
       "Safari >= 9",
       "Android >= 4.4",
       "Opera >= 30"], { cascade: true }))
-    .pipe(gulp.dest('./html/admin-template/assets/css/'));
+    .pipe(gulp.dest('./src/admin-template/assets/css/'));
 }
 
 function njk_admin() {
   return gulp
-    .src('./html/admin-template/assets/include/nunjucks/pages/**/*.njk')
-    .pipe(njkRender())
+    .src('./src/admin-template/assets/include/nunjucks/pages/**/*.njk')
+    .pipe(njkRender({
+      path: ['./src']
+    }))
     .pipe(htmlPrettify({
       indent_size: 2
     }))
-    .pipe(gulp.dest('./html/admin-template/'));
+    .pipe(gulp.dest('./src/admin-template/'));
 }
 
 
@@ -105,7 +110,7 @@ function njk_admin() {
 
 function sass_op(locOnePages) {
   return gulp
-    .src('./html/one-pages/' + locOnePages + '/assets/scss/**/*.scss')
+    .src('./src/one-pages/' + locOnePages + '/assets/scss/**/*.scss')
     .pipe(sass({ outputStyle: 'expanded' }))
     .on('error', sass.logError)
     .pipe(autoprefixer([
@@ -119,7 +124,7 @@ function sass_op(locOnePages) {
       "Safari >= 9",
       "Android >= 4.4",
       "Opera >= 30"], { cascade: true }))
-    .pipe(gulp.dest('./html/one-pages/' + locOnePages + '/assets/css/'));
+    .pipe(gulp.dest('./src/one-pages/' + locOnePages + '/assets/css/'));
 }
 async function get_sass_op() {
   for (var i = 0; i < locOnePages.length; i++) {
@@ -129,7 +134,7 @@ async function get_sass_op() {
 
 function sass_op_rtl(locOnePages) {
   return gulp
-    .src('./html/one-pages/' + locOnePages + '/assets/scss/**/*.scss')
+    .src('./src/one-pages/' + locOnePages + '/assets/scss/**/*.scss')
     .pipe(sass({ outputStyle: 'expanded' }))
     .on('error', sass.logError)
     .pipe(autoprefixer([
@@ -145,7 +150,7 @@ function sass_op_rtl(locOnePages) {
       "Opera >= 30"], { cascade: true }))
     .pipe(rtlcss())
     .pipe(rename({ suffix: '-rtl' }))
-    .pipe(gulp.dest('./html/rtl/one-pages/' + locOnePages + '/assets/css/'));
+    .pipe(gulp.dest('./src/rtl/one-pages/' + locOnePages + '/assets/css/'));
 }
 async function get_sass_op_rtl() {
   for (var i = 0; i < locOnePages.length; i++) {
@@ -161,7 +166,7 @@ async function get_sass_op_rtl() {
 
 function sass_ec() {
   return gulp
-    .src('./html/e-commerce/assets/scss/**/*.scss')
+    .src('./src/e-commerce/assets/scss/**/*.scss')
     .pipe(sass({ outputStyle: 'expanded' }))
     .on('error', sass.logError)
     .pipe(autoprefixer([
@@ -175,12 +180,12 @@ function sass_ec() {
       "Safari >= 9",
       "Android >= 4.4",
       "Opera >= 30"], { cascade: true }))
-    .pipe(gulp.dest('./html/e-commerce/assets/css/'));
+    .pipe(gulp.dest('./src/e-commerce/assets/css/'));
 }
 
 function sass_ec_rtl() {
   return gulp
-    .src('./html/e-commerce/assets/scss/**/*.scss')
+    .src('./src/e-commerce/assets/scss/**/*.scss')
     .pipe(sass({ outputStyle: 'expanded' }))
     .on('error', sass.logError)
     .pipe(autoprefixer([
@@ -196,7 +201,7 @@ function sass_ec_rtl() {
       "Opera >= 30"], { cascade: true }))
     .pipe(rtlcss())
     .pipe(rename({ suffix: '-rtl' }))
-    .pipe(gulp.dest('./html/rtl/e-commerce/assets/css/'));
+    .pipe(gulp.dest('./src/rtl/e-commerce/assets/css/'));
 }
 
 
@@ -207,7 +212,7 @@ function sass_ec_rtl() {
 
 function sass_mp(locMultiPages) {
   return gulp
-    .src('./html/multipage/' + locMultiPages + '/assets/scss/**/*.scss')
+    .src('./src/multipage/' + locMultiPages + '/assets/scss/**/*.scss')
     .pipe(sass({ outputStyle: 'expanded' }))
     .on('error', sass.logError)
     .pipe(autoprefixer([
@@ -221,7 +226,7 @@ function sass_mp(locMultiPages) {
       "Safari >= 9",
       "Android >= 4.4",
       "Opera >= 30"], { cascade: true }))
-    .pipe(gulp.dest('./html/multipage/' + locMultiPages + '/assets/css/'));
+    .pipe(gulp.dest('./src/multipage/' + locMultiPages + '/assets/css/'));
 }
 async function get_sass_mp() {
   for (var i = 0; i < locMultiPages.length; i++) {
@@ -231,7 +236,7 @@ async function get_sass_mp() {
 
 function sass_mp_rtl(locMultiPages) {
   return gulp
-    .src('./html/multipage/' + locMultiPages + '/assets/scss/**/*.scss')
+    .src('./src/multipage/' + locMultiPages + '/assets/scss/**/*.scss')
     .pipe(sass({ outputStyle: 'expanded' }))
     .on('error', sass.logError)
     .pipe(autoprefixer([
@@ -247,7 +252,7 @@ function sass_mp_rtl(locMultiPages) {
       "Opera >= 30"], { cascade: true }))
     .pipe(rtlcss())
     .pipe(rename({ suffix: '-rtl' }))
-    .pipe(gulp.dest('./html/rtl/multipage/' + locMultiPages + '/assets/css/'));
+    .pipe(gulp.dest('./src/rtl/multipage/' + locMultiPages + '/assets/css/'));
 }
 async function get_sass_mp_rtl() {
   for (var i = 0; i < locMultiPages.length; i++) {
@@ -263,7 +268,7 @@ async function get_sass_mp_rtl() {
 
 function sass_bm() {
   return gulp
-    .src('./html/multipage/blog-magazine/classic/assets/scss/**/*.scss')
+    .src('./src/multipage/blog-magazine/classic/assets/scss/**/*.scss')
     .pipe(sass({ outputStyle: 'expanded' }))
     .on('error', sass.logError)
     .pipe(autoprefixer([
@@ -277,12 +282,12 @@ function sass_bm() {
       "Safari >= 9",
       "Android >= 4.4",
       "Opera >= 30"], { cascade: true }))
-    .pipe(gulp.dest('./html/multipage/blog-magazine/classic/assets/css/'));
+    .pipe(gulp.dest('./src/multipage/blog-magazine/classic/assets/css/'));
 }
 
 function sass_bm_rtl() {
   return gulp
-    .src('./html/multipage/blog-magazine/classic/assets/scss/**/*.scss')
+    .src('./src/multipage/blog-magazine/classic/assets/scss/**/*.scss')
     .pipe(sass({ outputStyle: 'expanded' }))
     .on('error', sass.logError)
     .pipe(autoprefixer([
@@ -298,12 +303,12 @@ function sass_bm_rtl() {
       "Opera >= 30"], { cascade: true }))
     .pipe(rtlcss())
     .pipe(rename({ suffix: '-rtl' }))
-    .pipe(gulp.dest('./html/rtl/multipage/blog-magazine/classic/assets/css/'));
+    .pipe(gulp.dest('./src/rtl/multipage/blog-magazine/classic/assets/css/'));
 }
 
 function sass_bootstrap_rtl() {
   return gulp
-    .src('./html/assets/vendor/bootstrap/bootstrap.min.css')
+    .src('./src/assets/vendor/bootstrap/bootstrap.min.css')
     .pipe(sass({ outputStyle: 'expanded' }))
     .on('error', sass.logError)
     .pipe(autoprefixer([
@@ -319,7 +324,7 @@ function sass_bootstrap_rtl() {
       "Opera >= 30"], { cascade: true }))
     .pipe(rtlcss())
     .pipe(rename({ suffix: '-rtl' }))
-    .pipe(gulp.dest('./html/rtl/assets/vendors/bootstrap/'));
+    .pipe(gulp.dest('./src/rtl/assets/vendors/bootstrap/'));
 }
 
 
@@ -328,20 +333,36 @@ function sass_bootstrap_rtl() {
 // Watch
 //
 
+function reload(done) {
+  browserSync.reload();
+  done();
+}
+
+function serve(done) {
+  browserSync.init({
+    server: {
+      baseDir: "./src"
+    }
+  });
+  done();
+}
+
 function watch() {
-  gulp.watch('./html/assets/include/scss/**/*.scss', sass_main);
-  gulp.watch('./html/assets/include/nunjucks/**/*.njk', njk_main);
+  gulp.watch('./src/assets/include/scss/**/*.scss', gulp.series(sass_main, reload));
+  gulp.watch('./src/assets/include/nunjucks/**/*.njk', gulp.series(njk_main, reload));
 
-  gulp.watch('./html/admin-template/assets/include/scss/**/*.scss', sass_admin);
-  gulp.watch('./html/admin-template/assets/include/nunjucks/**/*.njk', njk_admin);
+  gulp.watch('./src/admin-template/assets/include/scss/**/*.scss', gulp.series(sass_admin, reload));
+  gulp.watch('./src/admin-template/assets/include/nunjucks/**/*.njk', gulp.series(njk_admin, reload));
 
-  gulp.watch('./html/multipage/marketing/assets/scss/**/*.scss', sass_mp);
+  gulp.watch('./src/multipage/marketing/assets/scss/**/*.scss', gulp.series(sass_mp, reload));
 
-  gulp.watch('./html/one-pages/charity/assets/scss/**/*.scss', sass_op);
+  gulp.watch('./src/one-pages/charity/assets/scss/**/*.scss', gulp.series(sass_op, reload));
+  
+  gulp.watch('./src/**/*.html', reload);
 }
 
 // Gulp Tasks
-gulp.task('default', gulp.series(watch));
+gulp.task('default', gulp.series(serve, watch));
 
 gulp.task('sass_main', sass_main);
 gulp.task('njk_main', njk_main);

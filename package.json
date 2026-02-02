@@ -9,7 +9,9 @@
   },
   "devDependencies": {
     "gulp": "^4.0.2",
-    "gulp-sass": "^4.0.1",
+    "gulp-sass": "^5.1.0",
+    "sass": "^1.69.0",
+    "browser-sync": "^2.29.3",
     "gulp-autoprefixer": "^5.0.0",
     "gulp-nunjucks-render": "^2.2.3",
     "gulp-html-prettify": "0.0.1",
